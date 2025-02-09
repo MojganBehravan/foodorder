@@ -2,14 +2,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
+import { firebaseConfig } from "./firebaseConfig.js"; // Import config
 
-// Firebase Config
-const firebaseConfig = {
-  apiKey: "",
-  authDomain: "food-ordering-81175.firebaseapp.com",
-  projectId: "food-ordering-81175",
- 
-};
+
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
