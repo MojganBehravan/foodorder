@@ -7,23 +7,24 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
 </head>
 <body>
   <!-- Header Section -->
-
-  <header class="header">
+ <header class="header">
     <div class="container">
-      <h1 class="logo">🍴 Foodie's Delight</h1>
-      <nav>
-        <ul class="nav-links">
-          <li><a href="#menu">Menu</a></li>
-          <li><a href="#about">About</a></li>
-          <li><a href="#contact">Contact</a></li>
-        </ul>
-      </nav>
-      <button id="login-btn" class="btn">Login</button>
+        <h1 class="logo">🍴 Foodie's Delight</h1>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html#menu">Menu</a></li>
+                <li><a href="index.html#about">About</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+        </nav>
+        <!-- Corrected button with proper syntax -->
+        <button id="auth-btn" class="btn">Loading</button>
     </div>
-  </header>
+</header>
 
   <!-- Hero Section -->
   <section class="hero">
@@ -63,17 +64,18 @@
     <p>© 2025 Foodie's Delight. All rights reserved.</p>
   </footer>
 
-  
-  
-  <iframe class="chat-bot"
-  allow="microphone;"
-  width="350"
-  height="430"
-  src="https://console.dialogflow.com/api-client/demo/embedded/30164140-2489-49cc-b319-37b462e97b1e">
-</iframe>
+  <!-- Dialogflow Messenger -->
+  <df-messenger
+    intent="WELCOME"
+    chat-title="IranianFood"
+    agent-id="30164140-2489-49cc-b319-37b462e97b1e"
+    language-code="en"
+  ></df-messenger>
 
   <!-- JavaScript -->
-  <script type="module" src="script.js"></script>
-  
+    <script type="module" src="firebaseConfig.js"></script>
+    <script type="module" src="auth.js"></script>
+    <script type="module" src="script.js"></script>
+
 </body>
 </html>

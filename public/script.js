@@ -1,50 +1,60 @@
-// Import Firebase SDK using CDN
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+// Import Firebase SDK for Firestore
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
-import { firebaseConfig } from "./firebaseConfig.js"; // Import config
 
-
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth();
+// Initialize Firestore
 const db = getFirestore();
 
-// Google Login
-document.getElementById("login-btn").addEventListener("click", async () => {
-  const provider = new GoogleAuthProvider();
-  try {
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
-    alert(`Welcome, ${user.displayName}!`);
-    console.log("User logged in:", user);
-  } catch (error) {
-    console.error("Login failed:", error);
-  }
-});
+// Reference to the authentication button
+const authBtn = document.getElementById("auth-btn");
+
+// Handle Authentication Button on Page Load
+window.onload = () => {
+    console.log("Page loaded. Current User ID:", window.currentUserId);
+
+    if (window.currentUserId) {
+        authBtn.textContent = "Profile";
+        authBtn.onclick = () => {
+            window.location.href = "profile.html";
+        };
+    } else {
+        authBtn.textContent = "Login";
+        authBtn.onclick = () => login();
+    }
+
+    fetchMenu(); // Load menu items when page loads
+};
 
 // Fetch Menu Items from Firestore
 async function fetchMenu() {
-  const menuGrid = document.getElementById("menu-grid");
-  menuGrid.innerHTML = ""; // Clear existing items
-  try {
-    const querySnapshot = await getDocs(collection(db, "foods"));
-    querySnapshot.forEach((doc) => {
-      const food = doc.data();
-      const foodCard = `
-        <div class="menu-card">
-          <img src="${food.image}" alt="${food.name}">
-          <h3>${food.name}</h3>
-          <p class="price">$${food.price}</p>
-        </div>
-      `;
-      menuGrid.innerHTML += foodCard;
-    });
-  } catch (error) {
-    console.error("Error fetching menu:", error);
-  }
+    const menuGrid = document.getElementById("menu-grid");
+    menuGrid.innerHTML = ""; // Clear existing items
+    try {
+        const querySnapshot = await getDocs(collection(db, "foods"));
+        querySnapshot.forEach((doc) => {
+            const food = doc.data();
+            const foodCard = `
+                <div class="menu-card">
+                    <img src="${food.image}" alt="${food.name}">
+                    <h3>${food.name}</h3>
+                    <p class="price">$${food.price}</p>
+                </div>
+            `;
+            menuGrid.innerHTML += foodCard;
+        });
+    } catch (error) {
+        console.error("Error fetching menu:", error);
+    }
 }
 
-// Load Menu on Page Load
-window.onload = fetchMenu
+// Trigger Custom Events for Login and Logout
+function login() {
+    window.dispatchEvent(new CustomEvent("trigger-login"));
+}
+
+function logout() {
+    window.dispatchEvent(new CustomEvent("trigger-logout"));
+}
+
+// Make functions globally accessible if needed
+window.login = login;
+window.logout = logout;

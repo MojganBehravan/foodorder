@@ -1,2 +1,13 @@
+# Firebase Emulator and Temporary Files
+.firebase/
+.firestore/
+.functions/
+firebase-debug.log
+
+# Node.js Modules
 node_modules/
-*.local
+package-lock.json
+# IDE Specific Files
+.idea/
+.vscode/
+.DS_Store

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="profile.css">
+</head>
+<body>
+  <!-- Header Section -->
+  <header class="header">
+    <div class="container">
+        <h1 class="logo">🍴 Foodie's Delight</h1>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html#menu">Menu</a></li>
+                <li><a href="index.html#about">About</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+        </nav>
+        <button id="auth-btn" class="btn">Logout</button>
+    </div>
+</header>
+
+  <!-- Profile Section -->
+  <div class="profile-container">
+    <div class="profile-card">
+      <h2>Your Profile</h2>
+
+      <div class="input-group">
+        <label for="user-name">Name:</label>
+        <input type="text" id="user-name" placeholder="Enter your name" disabled>
+      </div>
+
+      <div class="input-group">
+        <label for="user-email">Email:</label>
+        <input type="email" id="user-email" placeholder="Enter your email" disabled>
+      </div>
+
+      <div class="input-group">
+        <label for="user-address">Address:</label>
+        <input type="text" id="user-address" placeholder="Enter your address" disabled>
+      </div>
+
+      <button id="edit-btn" class="btn edit-btn">Edit Profile</button>
+      <button id="save-btn" class="btn save-btn hidden">Save Profile</button>
+      <p id="save-message" class="save-message hidden">Profile updated successfully!</p>
+    </div>
+
+    <div class="orders-card">
+      <h2>Your Orders</h2>
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Address</th>
+            <th>Status</th>
+            <th>Order Date</th>
+          </tr>
+        </thead>
+        <tbody id="orders-table">
+          <tr><td colspan="5">No orders found.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script type="module" src="firebaseConfig.js"></script>
+  <script type="module" src="auth.js"></script>
+  <script type="module" src="profile.js"></script>
+</body>
+</html>
