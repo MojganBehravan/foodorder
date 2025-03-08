@@ -10,7 +10,7 @@
 <body>
   <!-- Header Section -->
   <header class="header">
-    <div class="container">
+                  <div class="container">
         <h1 class="logo">🍴 Foodie's Delight</h1>
         <nav>
             <ul class="nav-links">
@@ -19,7 +19,13 @@
                 <li><a href="index.html#contact">Contact</a></li>
             </ul>
         </nav>
-        <button id="auth-btn" class="btn">Logout</button>
+
+        <!-- Authentication Section -->
+        <div class="auth-section">
+           <button id="login-btn" class="btn auth-btn">Login</button>
+           <span id="user-name" class="user-name" style="display:none;"></span>
+           <button id="logout-btn" class="btn auth-btn" style="display:none;">Logout</button>
+        </div>
     </div>
 </header>
 
@@ -30,7 +36,7 @@
 
       <div class="input-group">
         <label for="user-name">Name:</label>
-        <input type="text" id="user-name" placeholder="Enter your name" disabled>
+        <input type="text" id="username" placeholder="Enter your name" disabled>
       </div>
 
       <div class="input-group">

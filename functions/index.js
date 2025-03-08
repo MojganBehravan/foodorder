@@ -9,6 +9,9 @@ export const dialogflowWebhook = functions.https.onRequest(async (req, res) => {
     const intentName = req.body.queryResult.intent.displayName;
     const parameters = req.body.queryResult.parameters;
     const session = req.body.session;
+     // Correctly extract user ID from queryParams payload
+    let userId = req.body.queryResult?.parameters?.userId || "guest";
+    console.log("Received user ID in webhook:", userId);
 
     if (intentName === "Place Order") {
         try {
@@ -51,26 +54,35 @@ export const dialogflowWebhook = functions.https.onRequest(async (req, res) => {
             outputContexts: [
                 {
                     name: `${session}/contexts/awaiting-address`,
-                    lifespanCount: 5
+                    lifespanCount: 5,
+                    parameters: {
+                    "food-item": foodItem,
+                    "quantity": quantity
+                }
                 }
             ]
         });
     }
     else if (intentName === "Provide Address") {
     const deliveryAddress = parameters["address"] || "No address provided";
-    const userId = req.body.originalDetectIntentRequest?.payload?.user?.uid || "guest";
+// Fetch the existing order details from the previous context (e.g., awaiting-address)
+    const previousContext = req.body.queryResult.outputContexts.find(
+        (context) => context.name.endsWith("/awaiting-address")
+    )?.parameters;
+    const foodItem = previousContext?.["food-item"] || "Unknown item";
+    const quantity = previousContext?.["quantity"] || 1;
 
     res.json({
-        fulfillmentText: `You've entered: ${deliveryAddress}. Should I confirm the order?`,
+        fulfillmentText: `You've entered: ${deliveryAddress}.\nShould I confirm this delivery address?`,
         outputContexts: [
             {
                 name: `${req.body.session}/contexts/awaiting-confirmation`,
                 lifespanCount: 5,
                 parameters: {
-                    address: deliveryAddress,
-                    foodItem: req.body.queryResult.outputContexts[0]?.parameters["foodItem"],
-                    quantity: req.body.queryResult.outputContexts[0]?.parameters["quantity"] || 1,
-                    userId: userId
+                   "address": deliveryAddress,
+                    "food-item": foodItem, // Preserve food item
+                    "quantity": quantity,  // Preserve quantity
+                    "userId": userId
                 }
             }
         ]
@@ -86,6 +98,7 @@ export const dialogflowWebhook = functions.https.onRequest(async (req, res) => {
     const quantity = contextParameters?.["quantity"] || 1;
     const deliveryAddress = contextParameters?.["address"] || "No address provided";
     const userId = contextParameters?.["userId"] || "guest";
+    console.log("User ID for order:", userId);
     // Generate a unique tracking number (e.g., using a timestamp and a random number)
     const trackingNumber = `TRK-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
@@ -114,13 +127,73 @@ export const dialogflowWebhook = functions.https.onRequest(async (req, res) => {
 }
 
     else if (intentName === "Track Order") {
+    res.json({
+        fulfillmentText: "Sure! Please provide your order's tracking number.",
+        outputContexts: [
+            {
+                name: `${session}/contexts/awaiting-tracking-id`,
+                lifespanCount: 5
+            }
+        ]
+    });
+}
+
+else if (intentName === "Confirm Track Order") {
+    const trackingNumber = parameters["trackingNumber"] || req.body.queryResult.queryText.match(/TRK-\d+-\d+/)?.[0];
+
+    if (!trackingNumber) {
         res.json({
-            fulfillmentText: "I can help you track your order. Please provide your order ID."
+            fulfillmentText: "I couldn't understand your tracking number. Please provide it again."
+        });
+        return;
+    }
+
+    try {
+        // Fetch the order from Firestore using the tracking number
+        const ordersSnapshot = await db.collection("orders")
+            .where("trackingNumber", "==", trackingNumber)
+            .get();
+
+        if (!ordersSnapshot.empty) {
+            const orderData = ordersSnapshot.docs[0].data();
+            res.json({
+                fulfillmentText: `Order Status: ${orderData.status}. Your order of ${orderData.quantity} ${orderData.item}(s) will be delivered to ${orderData.address}.`,
+                outputContexts: [
+                    {
+                        name: `${req.body.session}/contexts/awaiting-tracking-id`,
+                        lifespanCount: 0 // Clear the tracking context
+                    }
+                ]
+
+            });
+        } else {
+            res.json({
+                fulfillmentText: "Sorry, I couldn't find an order with that tracking number. Please try again.",
+                outputContexts: [
+                    {
+                        name: `${req.body.session}/contexts/awaiting-tracking-id`,
+                        lifespanCount: 5 // Keep waiting for a valid tracking ID
+                    }
+                ]
+
+            });
+        }
+    } catch (error) {
+        console.error("Error tracking order:", error);
+        res.status(500).json({
+            fulfillmentText: "There was an issue retrieving your order status. Please try again later."
         });
     }
+}
     else {
         res.json({
-            fulfillmentText: "I couldn't process your request. Please try again."
+            fulfillmentText: "I couldn't process your request. Please try again.",
+            outputContexts: [
+                {
+                    name: `${req.body.session}/contexts/awaiting-tracking-id`,
+                    lifespanCount: 0 // Ensure the context is cleared on error
+                }
+            ]
         });
     }
 });

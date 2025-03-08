@@ -1,71 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="profile.css">
+</head>
+<body>
+
+  <header class="header">
+            <div class="container header-container">
+        <h1 class="logo">🍴 Foodie's Delight - Admin Dashboard</h1>
+
+        <div class="auth-section">
+           <button id="logout-btn" class="btn auth-btn" >Logout</button>
+        </div>
+    </div>
+</header>
+
 <div id="admin-dashboard">
-  <h1>Admin Dashboard</h1>
-  
-  <!-- Dashboard Overview -->
-  <section id="dashboard-overview">
-    <h2>Overview</h2>
-    <p>Total Orders: <span id="total-orders">0</span></p>
-    <p>Active Orders: <span id="active-orders">0</span></p>
-    <p>Total Revenue: $<span id="total-revenue">0.00</span></p>
-    <p>Registered Users: <span id="registered-users">0</span></p>
-  </section>
 
-  <!-- Menu Management -->
-  <section id="menu-management">
-    <h2>Menu Management</h2>
-    <button id="add-item">Add New Item</button>
-    <table id="menu-table">
-      <thead>
-        <tr>
-          <th>Item Name</th>
-          <th>Description</th>
-          <th>Price</th>
-          <th>Image</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Menu items will be dynamically added here -->
-      </tbody>
-    </table>
-  </section>
-
-  <!-- Order Management -->
-  <section id="order-management">
-    <h2>Order Management</h2>
-    <table id="order-table">
-      <thead>
-        <tr>
-          <th>Order ID</th>
-          <th>User</th>
-          <th>Items</th>
-          <th>Total Price</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Orders will be dynamically added here -->
-      </tbody>
-    </table>
-  </section>
-
-  <!-- User Management -->
-  <section id="user-management">
-    <h2>User Management</h2>
-    <table id="user-table">
-      <thead>
-        <tr>
-          <th>User ID</th>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Total Orders</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Users will be dynamically added here -->
-      </tbody>
-    </table>
-  </section>
+    <!-- Order Management -->
+    <section id="order-management" class="order-management">
+        <h2>Order Management</h2>
+        <table id="order-table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>User ID</th>
+                    <th>Items</th>
+                    <th>Total Price</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Orders will be dynamically added here -->
+            </tbody>
+        </table>
+    </section>
 </div>
+
+
+    <script type="module" src="adminAuth.js"></script>
+    <script type="module" src="admin.js"></script>
+</body>
+</html>

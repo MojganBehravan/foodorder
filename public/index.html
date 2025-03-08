@@ -12,7 +12,7 @@
 <body>
   <!-- Header Section -->
  <header class="header">
-    <div class="container">
+            <div class="container">
         <h1 class="logo">🍴 Foodie's Delight</h1>
         <nav>
             <ul class="nav-links">
@@ -21,8 +21,13 @@
                 <li><a href="index.html#contact">Contact</a></li>
             </ul>
         </nav>
-        <!-- Corrected button with proper syntax -->
-        <button id="auth-btn" class="btn">Loading</button>
+
+        <!-- Authentication Section -->
+        <div class="auth-section">
+           <button id="login-btn" class="btn auth-btn">Login</button>
+           <span id="user-name" class="user-name" style="display:none;"></span>
+           <button id="logout-btn" class="btn auth-btn" style="display:none;">Logout</button>
+        </div>
     </div>
 </header>
 
@@ -70,7 +75,10 @@
     chat-title="IranianFood"
     agent-id="30164140-2489-49cc-b319-37b462e97b1e"
     language-code="en"
+    id="df-messenger"
+    data="{}"
   ></df-messenger>
+
 
   <!-- JavaScript -->
     <script type="module" src="firebaseConfig.js"></script>

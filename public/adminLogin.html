@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="profile.css">
+</head>
+<body>
+    <div class="form-container">
+        <h1>Admin Login</h1>
+        <div class="input-group">
+            <label for="admin-email">Email:</label>
+            <input type="email" id="admin-email" placeholder="Enter your admin email" required>
+        </div>
+        <div class="input-group">
+            <label for="admin-password">Password:</label>
+            <input type="password" id="admin-password" placeholder="Enter your password" required>
+        </div>
+        <button class="btn" onclick="adminLogin()">Login</button>
+    </div>
+
+    <script type="module" src="adminAuth.js"></script>
+</body>
+</html>

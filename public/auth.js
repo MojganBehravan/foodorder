@@ -1,48 +1,71 @@
 // Import Firebase Modules
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signOut, signInWithPopup, GoogleAuthProvider, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
 import { firebaseConfig } from "./firebaseConfig.js";
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
-// Global variable for current user ID
-window.currentUserId = null;
-window.auth = auth; // Make auth globally accessible
+// Set auth state persistence to LOCAL
+setPersistence(auth, browserLocalPersistence)
+    .then(() => {
+        console.log("Auth state persistence set to LOCAL.");
+    })
+    .catch((error) => {
+        console.error("Error setting auth persistence:", error);
+    });
 
-// Handle Authentication State Globally
+// Handle Authentication State
 onAuthStateChanged(auth, (user) => {
-    const authBtn = document.getElementById("auth-btn");
+    const userNameSpan = document.getElementById("user-name");
+    const loginBtn = document.getElementById("login-btn");
+    const logoutBtn = document.getElementById("logout-btn");
 
     if (user) {
         window.currentUserId = user.uid;
         console.log("Authenticated User:", user);
 
-        if (authBtn) {
-            authBtn.textContent = "Profile";
-            authBtn.onclick = () => {
-                window.location.href = "profile.html";
-            };
+        // Update UI Elements
+        if (userNameSpan) {
+            userNameSpan.textContent = user.displayName;
+            userNameSpan.style.display = "inline-block";
+            userNameSpan.onclick = () => window.location.href = "profile.html";
         }
+
+        if (loginBtn) loginBtn.style.display = "none";
+        if (logoutBtn) {
+            logoutBtn.style.display = "inline-block";
+            logoutBtn.onclick = () => logout();
+        }
+
+        window.dispatchEvent(new CustomEvent("auth-state-changed", { detail: { user } }));
     } else {
         window.currentUserId = null;
         console.log("No user logged in.");
-        if (authBtn) {
-            authBtn.textContent = "Login";
-            authBtn.onclick = () => login();
+
+        // Reset UI Elements
+        if (userNameSpan) {
+            userNameSpan.textContent = "";
+            userNameSpan.style.display = "none";
         }
+
+        if (loginBtn) loginBtn.style.display = "inline-block";
+        if (logoutBtn) logoutBtn.style.display = "none";
+
+        window.dispatchEvent(new CustomEvent("auth-state-changed", { detail: { user: null } }));
     }
 });
 
 // Login Function
-async function login() {
+export async function login() {
     try {
         const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-        alert(`Welcome, ${user.displayName}!`);
-        window.location.href = "profile.html"; // Redirect to profile page after login
+        console.log(`Welcome, ${result.user.displayName}!`);
+        window.location.href = "profile.html";
     } catch (error) {
         console.error("Login failed:", error);
         alert("Login failed. Please try again.");
@@ -50,27 +73,16 @@ async function login() {
 }
 
 // Logout Function
-async function logout() {
+export async function logout() {
     try {
         await signOut(auth);
-        alert("Logged out successfully.");
+        console.log("Logged out successfully.");
         window.location.href = "index.html";
     } catch (error) {
         console.error("Logout failed:", error);
     }
 }
 
-// Handle Custom Events from Other Scripts
-window.addEventListener("trigger-login", async () => {
-    console.log("Login triggered from another script");
-    await login();
-});
-
-window.addEventListener("trigger-logout", async () => {
-    console.log("Logout triggered from another script");
-    await logout();
-});
-
-// Make login and logout functions globally accessible
+// Make functions globally accessible
 window.login = login;
 window.logout = logout;
