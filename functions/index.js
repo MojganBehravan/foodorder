@@ -9,10 +9,12 @@ export const dialogflowWebhook = functions.https.onRequest(async (req, res) => {
     const intentName = req.body.queryResult.intent.displayName;
     const parameters = req.body.queryResult.parameters;
     const session = req.body.session;
-     // Correctly extract user ID from queryParams payload
+     /*/ Correctly extract user ID from queryParams payload
+     console.log("Request received:", JSON.stringify(req.body, null, 2));
+     console.log("Extracted userId:", req.body.queryResult.parameters?.userId);
     let userId = req.body.queryResult?.parameters?.userId || "guest";
     console.log("Received user ID in webhook:", userId);
-
+    */
     if (intentName === "Place Order") {
         try {
             // Fetch menu items from Firestore
@@ -23,21 +25,30 @@ export const dialogflowWebhook = functions.https.onRequest(async (req, res) => {
                 const food = doc.data();
                 menuItems += `${food.name} - $${food.price}\n`;
             });
+            const userId = req.body.queryResult.parameters?.userId || "guest";
+            console.log("Storing userId in Place Order:", userId);
 
             // Respond with the menu
             res.json({
                 fulfillmentText: `Here's our menu:\n${menuItems}\nWhat would you like to order?`,
                 outputContexts: [
                     {
-                        name: `${session}/contexts/ongoing-order`,
-                        lifespanCount: 5
-                    },
-                    {
-                        name: `${session}/contexts/awaiting-address`,
-                        lifespanCount: 5
+                    name: `${session}/contexts/ongoing-order`,
+                    lifespanCount: 5,
+            /*       parameters: {
+                        "userId": userId
                     }
-                ]
-            });
+           */
+                },
+                {
+                    name: `${session}/contexts/awaiting-address`,
+                    lifespanCount: 5,
+            //       parameters: {
+           //             "userId": userId
+           //         }
+                }
+            ]
+        });
         } catch (error) {
             console.error("Error fetching menu:", error);
             res.status(500).json({
@@ -48,7 +59,8 @@ export const dialogflowWebhook = functions.https.onRequest(async (req, res) => {
     else if (intentName === "Select Food") {
         const foodItem = parameters["food-item"];
         const quantity = parameters["quantity"] || 1;
-
+     //   const userId = req.body.queryResult.parameters?.userId || "guest";
+     //   console.log("Storing userId in Select Food:", userId);
         res.json({
             fulfillmentText: `You want ${quantity} ${foodItem}(s). Please provide your delivery address.`,
             outputContexts: [
@@ -57,7 +69,8 @@ export const dialogflowWebhook = functions.https.onRequest(async (req, res) => {
                     lifespanCount: 5,
                     parameters: {
                     "food-item": foodItem,
-                    "quantity": quantity
+                    "quantity": quantity,
+                //    "userId": userId
                 }
                 }
             ]
@@ -71,6 +84,8 @@ export const dialogflowWebhook = functions.https.onRequest(async (req, res) => {
     )?.parameters;
     const foodItem = previousContext?.["food-item"] || "Unknown item";
     const quantity = previousContext?.["quantity"] || 1;
+//    const userId = previousContext?.["userId"] || req.body.queryResult.parameters?.userId || "guest";
+ //   console.log("Storing userId in Provide Address:", userId);
 
     res.json({
         fulfillmentText: `You've entered: ${deliveryAddress}.\nShould I confirm this delivery address?`,
@@ -82,7 +97,7 @@ export const dialogflowWebhook = functions.https.onRequest(async (req, res) => {
                    "address": deliveryAddress,
                     "food-item": foodItem, // Preserve food item
                     "quantity": quantity,  // Preserve quantity
-                    "userId": userId
+                //    "userId": userId
                 }
             }
         ]
@@ -97,8 +112,8 @@ export const dialogflowWebhook = functions.https.onRequest(async (req, res) => {
     const foodItem = contextParameters?.["food-item"] || "Unknown item";
     const quantity = contextParameters?.["quantity"] || 1;
     const deliveryAddress = contextParameters?.["address"] || "No address provided";
-    const userId = contextParameters?.["userId"] || "guest";
-    console.log("User ID for order:", userId);
+  //  const userId = contextParameters?.["userId"] || req.body.queryResult.parameters?.userId || "guest";
+  //  console.log("User ID for confirm order:", userId);
     // Generate a unique tracking number (e.g., using a timestamp and a random number)
     const trackingNumber = `TRK-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
@@ -108,7 +123,7 @@ export const dialogflowWebhook = functions.https.onRequest(async (req, res) => {
             item: foodItem,
             quantity: quantity,
             address: deliveryAddress,
-            userId: userId,
+        //    userId: userId,
             trackingNumber: trackingNumber, // Add the tracking number
             status: "Pending",
             timestamp: admin.firestore.FieldValue.serverTimestamp()

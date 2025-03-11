@@ -113,22 +113,32 @@ async function fetchMenu() {
         menuGrid.innerHTML = "<p>Error loading menu. Please try again later.</p>";
     }
 }
-// Setup Chatbot Event Listener
+/*/ Setup Chatbot Event Listener
 function setupChatbotListener() {
-    const dfMessenger = document.querySelector("df-messenger");
-    if (dfMessenger) {
-        dfMessenger.addEventListener("df-request-sent", (event) => {
-            console.log("Message sent to Dialogflow", event);
+        const checkMessenger = setInterval(() => {
+        const dfMessenger = document.querySelector("df-messenger");
+        if (dfMessenger) {
+            console.log("Dialogflow Messenger found, attaching listener...");
+            clearInterval(checkMessenger); // Stop checking once found
 
-            const userMessage = event.detail.queryText;
-            if (userMessage) {
-                sendMessageToChatbot(userMessage);
-            }
-        });
-    } else {
-        console.error("df-messenger not found in the DOM.");
-    }
-}
+            dfMessenger.addEventListener("df-request-sent", (event) => {
+                console.log("Message sent to Dialogflow", event);
+
+                const userMessage = event.detail?.requestBody?.queryInput?.text?.text;
+                console.log("Extracted user message:", userMessage);
+                if (userMessage) {
+                    sendMessageToChatbot(userMessage);
+                }else {
+                    console.error("Failed to extract user message from event.");
+                }
+            });
+        }
+    }, 1000); // Check every 1 second
+}// Call the function when the page loads
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("Page loaded, setting up chatbot listener...");
+    setupChatbotListener();
+});
 // Chatbot Integration
 async function sendMessageToChatbot(message) {
     try {
@@ -146,11 +156,19 @@ async function sendMessageToChatbot(message) {
                 originalDetectIntentRequest: { payload: {} }
             }),
         });
-
-        const data = await response.json();
-        console.log("Bot Response:", data.fulfillmentText);
+        //Check if the response is JSON
+        const text = await response.text();
+        console.log("Raw response from server:", text);
+   try {
+            const data = JSON.parse(text);
+            console.log("Bot Response:", data.fulfillmentText);
+        } catch (error) {
+            console.error("Server response is not JSON. Possible issue with API:", text);
+        }
 
     } catch (error) {
         console.error("Error communicating with the chatbot:", error);
     }
 }
+
+*/

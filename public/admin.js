@@ -70,8 +70,9 @@ async function loadOrders() {
             const row = document.createElement("tr");
             row.innerHTML = `
                 <td>${doc.id}</td>
-                <td>${order.userId || "N/A"}</td>
-                <td>${order.item} (x${order.quantity})</td>
+                <td>${order.address || "N/A"}</td>
+                <td>${order.item}</td>
+                <td>${order.quantity}</td>
                 <td>$${(order.quantity * 10).toFixed(2)}</td>
                 <td contenteditable="true" data-field="status">${order.status}</td>
                 <td>
@@ -87,19 +88,22 @@ async function loadOrders() {
     }
 }
 // Toggle between Edit and Save
-window.toggleEditOrder = function(button, orderId) {
+window.toggleEditOrder = function (button, orderId) {
     const row = button.parentElement.parentElement;
     const isEditing = button.textContent === "Edit";
 
-    // Toggle to Edit Mode
+    // Toggle Editable Fields
+    row.querySelectorAll("[contenteditable]").forEach(cell => {
+        cell.setAttribute("contenteditable", isEditing ? "true" : "false");
+        cell.style.border = isEditing ? "2px solid blue" : "1px solid #ddd"; // Match border styling from menu editing
+    });
+
+    // Change Button Text
     if (isEditing) {
         button.textContent = "Save";
-        row.querySelectorAll("[contenteditable]").forEach(cell => cell.setAttribute("contenteditable", "true"));
     } else {
-        // Save Changes to Firestore
         saveOrderChanges(orderId, row);
         button.textContent = "Edit";
-        row.querySelectorAll("[contenteditable]").forEach(cell => cell.setAttribute("contenteditable", "false"));
     }
 };
 
@@ -128,5 +132,130 @@ window.deleteOrder =async function deleteOrder(orderId) {
         loadOrders(); // Refresh the orders table
     } catch (error) {
         console.error("Error deleting order:", error);
+    }
+
+    // Menu Management Modal
+const modal = document.getElementById("menu-modal");
+const openModalBtn = document.getElementById("open-menu-btn");
+const closeModalBtn = document.querySelector(".close-btn");
+
+// Open the menu modal
+openModalBtn.addEventListener("click", () => {
+    modal.style.display = "flex";
+    loadMenuItems(); // Load menu data when modal opens
+});
+
+// Close the modal when clicking "X"
+closeModalBtn.addEventListener("click", () => {
+    modal.style.display = "none";
+});
+
+// Load Menu Items from Firestore
+async function loadMenuItems() {
+    const menuTable = document.getElementById("menu-table").querySelector("tbody");
+    menuTable.innerHTML = ""; // Clear previous data
+
+    try {
+        const querySnapshot = await getDocs(collection(db, "foods"));
+        querySnapshot.forEach((doc) => {
+            const food = doc.data();
+
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td contenteditable="true" data-field="name">${food.name}</td>
+                <td contenteditable="true" data-field="description">${food.description}</td>
+                <td contenteditable="true" data-field="price">$${food.price}</td>
+                <td><img src="${food.image}" width="50"></td>
+                <td>
+                    <button class="btn edit-btn" onclick="saveMenuChanges('${doc.id}', this)">Save</button>
+                    <button class="btn delete-btn" onclick="deleteMenuItem('${doc.id}')">Delete</button>
+                </td>
+            `;
+            menuTable.appendChild(row);
+        });
+    } catch (error) {
+        console.error("Error loading menu:", error);
+    }
+}
+
+// Add a New Menu Item
+async function addMenuItem() {
+    const name = document.getElementById("menu-name").value;
+    const description = document.getElementById("menu-description").value;
+    const price = document.getElementById("menu-price").value;
+    const image = document.getElementById("menu-image").value;
+
+    try {
+        await addDoc(collection(db, "foods"), { name, description, price, image });
+        alert("Menu item added successfully!");
+        loadMenuItems(); // Reload menu
+    } catch (error) {
+        console.error("Error adding menu item:", error);
+    }
+}
+
+// Update an Existing Menu Item
+async function saveMenuChanges(menuId, button) {
+    const row = button.parentElement.parentElement;
+    const newName = row.querySelector('[data-field="name"]').textContent.trim();
+    const newDescription = row.querySelector('[data-field="description"]').textContent.trim();
+    const newPrice = parseFloat(row.querySelector('[data-field="price"]').textContent.replace("$", "").trim());
+
+    try {
+        await updateDoc(doc(db, "foods", menuId), { name: newName, description: newDescription, price: newPrice });
+        alert("Menu item updated successfully!");
+    } catch (error) {
+        console.error("Error updating menu:", error);
+    }
+}
+
+// Delete Menu Item
+async function deleteMenuItem(menuId) {
+    await deleteDoc(doc(db, "foods", menuId));
+    alert("Menu item deleted!");
+    loadMenuItems();
+    }
+};
+// Menu Management Modal
+const modal = document.getElementById("menu-modal");
+const openModalBtn = document.getElementById("open-menu-btn");
+const closeModalBtn = document.querySelector(".close-btn");
+
+// Open the menu modal on button click
+openModalBtn.addEventListener("click", () => {
+    modal.style.display = "flex";
+    loadMenuItems(); // Load menu data when modal opens
+});
+
+// Close the modal when clicking "X"
+closeModalBtn.addEventListener("click", () => {
+    modal.style.display = "none";
+});
+
+// Load Menu Items from Firestore
+async function loadMenuItems() {
+    const menuTable = document.getElementById("menu-table").querySelector("tbody");
+    menuTable.innerHTML = "";
+
+    try {
+        const querySnapshot = await getDocs(collection(db, "foods"));
+        querySnapshot.forEach((doc) => {
+            const food = doc.data();
+
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td contenteditable="true" data-field="name">${food.name}</td>
+                <td contenteditable="true" data-field="description">${food.description}</td>
+                <td contenteditable="true" data-field="price">$${food.price}</td>
+                <td><img src="${food.image}" width="50"></td>
+                <td>
+                    <button class="btn edit-btn" onclick="saveMenuChanges('${doc.id}', this)">Save</button>
+                    <button class="btn delete-btn" onclick="deleteMenuItem('${doc.id}')">Delete</button>
+                </td>
+            `;
+            menuTable.appendChild(row);
+        });
+    } catch (error) {
+        console.error("Error loading menu:", error);
     }
 }

@@ -4,14 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="profile.css">
+    <link rel="stylesheet" href="admin.css">
 </head>
 <body>
 
   <header class="header">
             <div class="container header-container">
         <h1 class="logo">🍴 Foodie's Delight - Admin Dashboard</h1>
-
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="menuManagement.html" id="open-menu-btn">Manage Menu</a></li>
+                </ul>
+            </nav>
         <div class="auth-section">
            <button id="logout-btn" class="btn auth-btn" >Logout</button>
         </div>
@@ -27,8 +31,9 @@
             <thead>
                 <tr>
                     <th>Order ID</th>
-                    <th>User ID</th>
+                    <th>Address</th>
                     <th>Items</th>
+                    <th>Quantity</th>
                     <th>Total Price</th>
                     <th>Status</th>
                     <th>Actions</th>

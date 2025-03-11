@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Menu - Foodie's Delight</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+  <header class="header">
+            <div class="container header-container">
+        <h1 class="logo">🍴 Foodie's Delight - Admin Dashboard</h1>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="admin.html" id="open-menu-btn">Order Management</a></li>
+                </ul>
+            </nav>
+        <div class="auth-section">
+           <button id="logout-btn" class="btn auth-btn" >Logout</button>
+        </div>
+    </div>
+</header>
+
+    <!-- Menu Management Section -->
+    <main class="container">
+
+
+        <!-- Add New Item Form -->
+        <section class="menu-form">
+            <h3>Add New Item</h3>
+            <input type="text" id="menu-name" placeholder="Item Name">
+            <input type="text" id="menu-description" placeholder="Description">
+            <input type="number" id="menu-price" placeholder="Price">
+            <input type="text" id="menu-image" placeholder="Image URL">
+            <button class="btn btn-green" onclick="addMenuItem()">Add to Menu</button>
+        </section>
+
+        <!-- Menu Table -->
+        <section class="menu-table-section">
+            <h3>Existing Menu</h3>
+            <table id="menu-table">
+                <thead>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Description</th>
+                        <th>Price</th>
+                        <th>Image</th>
+                        <th>Actions
+                        </th>
+
+                    </tr>
+                </thead>
+                <tbody id="menu-table-body">
+                    <!-- Items will be loaded here -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <script type="module" src="menuManagement.js"></script>
+</body>
+</html>
